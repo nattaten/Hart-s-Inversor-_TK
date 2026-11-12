@@ -1,22 +1,23 @@
-# Mechanical Engineering Project Template
-
-A reusable starting point for projects in the Mechanical Engineering Department. Use this repository as a template to organize a project’s mechanical design, electronics, software, machine skills, simulation, documentation, experiments, and publications.
-
-## Getting started
-
-1. Select **Use this template** on GitHub to create a repository for your project.
-2. Rename the project in this README and update the project summary, team, and objectives.
-3. Review the folder READMEs and replace the examples with project-specific information.
-4. Create GitHub Issues for tasks and record important design decisions and test results.
-5. Check the license placeholder and select appropriate terms before sharing or reusing project work.
-
+# Mechanical Engineering Project 
 ## Project overview
 
-- **Project name:** [Enter project name]
-- **Problem / purpose:** [Describe the engineering need]
-- **Team:** [Names and responsibilities]
-- **Status:** Planning
-- **Last updated:** [YYYY-MM-DD]
+- **Project name:** 
+- **Problem / purpose:** There is a need for a mechanical mechanism that can convert rotary motion into precise straight-line motion without using sliding joints or external linear guides. Hart's Inversor addresses this need by using a system of interconnected links and revolute joints to generate exact straight-line motion. This mechanism can help reduce friction, mechanical wear, and the complexity of mechanical systems while providing a reliable solution for applications requiring accurate linear movement.
+- **Team:**
+  1.Nattapat Kaewthong (Student ID: 6730164021)
+
+  Responsible for performing symbolic mathematical calculations (Symbolic Math).
+
+  Responsible for preparing and writing the project report.
+
+2. Korn Srivarakul (Student ID: 6730004321)
+
+Responsible for creating the mechanical CAD design.
+
+Responsible for 3D printing and manufacturing the mechanical components using a 3D printer.
+
+- **Status:** Under Development
+- **Last updated:** [2026-11-12]
 
 ## Repository structure
 
@@ -34,10 +35,4 @@ A reusable starting point for projects in the Mechanical Engineering Department.
 | `experiments/` | Procedures, raw data, and results |
 | `publications/` | Project-related journal and conference papers |
 
-## Collaboration and file practices
 
-Use descriptive filenames and commit messages. Record units, revisions, software versions, and assumptions. Keep editable source files where practical. Avoid committing credentials, private data, temporary files, or duplicate exports. Consider Git LFS for large CAD, simulation, and video files.
-
-## Safety and validation
-
-Document hazards, safeguards, and operating limits before testing hardware. Validate important calculations and simulation results against measurements where practical.
