@@ -11,11 +11,11 @@
 
     Responsible for preparing and writing the project report.
 
-2. Korn Srivarakul (Student ID: 6730004321)
+  2. Korn Srivarakul (Student ID: 6730004321)
 
-  Responsible for creating the mechanical CAD design.
+    Responsible for creating the mechanical CAD design.
 
-  Responsible for 3D printing and manufacturing the mechanical components using a 3D printer.
+    Responsible for 3D printing and manufacturing the mechanical components using a 3D printer.
 
 - **Status:** Under Development
 - **Last updated:** [2026-11-12]
