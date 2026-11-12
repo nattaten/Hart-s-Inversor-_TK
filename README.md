@@ -1,20 +1,21 @@
 # Mechanical Engineering Project 
 ## Project overview
 
-- **Project name:** 
+- **Project name:** Hart's Inversor
 - **Problem / purpose:** There is a need for a mechanical mechanism that can convert rotary motion into precise straight-line motion without using sliding joints or external linear guides. Hart's Inversor addresses this need by using a system of interconnected links and revolute joints to generate exact straight-line motion. This mechanism can help reduce friction, mechanical wear, and the complexity of mechanical systems while providing a reliable solution for applications requiring accurate linear movement.
 - **Team:**
+  
   1.Nattapat Kaewthong (Student ID: 6730164021)
 
-  Responsible for performing symbolic mathematical calculations (Symbolic Math).
+    Responsible for performing symbolic mathematical calculations (Symbolic Math).
 
-  Responsible for preparing and writing the project report.
+    Responsible for preparing and writing the project report.
 
 2. Korn Srivarakul (Student ID: 6730004321)
 
-Responsible for creating the mechanical CAD design.
+  Responsible for creating the mechanical CAD design.
 
-Responsible for 3D printing and manufacturing the mechanical components using a 3D printer.
+  Responsible for 3D printing and manufacturing the mechanical components using a 3D printer.
 
 - **Status:** Under Development
 - **Last updated:** [2026-11-12]
