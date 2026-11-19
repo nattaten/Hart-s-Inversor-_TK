@@ -1,4 +1,4 @@
-item,description,manufacturer,part_name,quantity,unit,unit_cost,currency,supplier,url,notes
+item,Material,manufacturer,part_name,quantity,unit,unit_cost,currency,supplier,url,notes
 1,[PLA],[Korn Srivarakul],[Crank_Link],1,pcs,,,[Supplier],,[Specification or selection note]
 2,[PLA],[Korn Srivarakul],[Ground],1,pcs,,,[Supplier],,[Specification or selection note]
 3,[PLA],[Korn Srivarakul],[Short_link_A],1,pcs,,,[Supplier],,[Specification or selection note]
