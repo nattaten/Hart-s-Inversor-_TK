@@ -1,3 +1,6 @@
 # Media
 
-Store project images, GIFs, and concise clips here. Use descriptive filenames and captions; link to externally hosted videos from this README or a project page. Avoid duplicate or unnecessarily large exports.
+
+![Hart's Inversor Simulation Preview](assets/hart_simulation.gif)
+
+[Watch / Download Hart's Inversor Simulation (MP4)](Hart%27s%20Inversor%20simmulation.mp4)
