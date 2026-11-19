@@ -1,0 +1,69 @@
+clc; clear; close all;
+syms L l R t omega alpha real
+syms theta(t)
+
+assume(L > l);
+assume(l > 0);
+assume(R > 0);
+
+K      = (L^2 - l^2) / 4;
+x_line = K / (2*R);
+
+
+xP = x_line;
+yP = x_line * tan(theta(t)/2);
+
+vxP = diff(xP, t);
+vyP = subs(diff(yP, t), diff(theta(t), t), omega);
+
+
+axP = diff(vxP, t);
+ayP_raw = diff(subs(vyP, omega, diff(theta(t), t)), t);
+ayP = simplify(subs(ayP_raw, ...
+    {diff(theta(t), t, 2), diff(theta(t), t)}, {alpha, omega}));
+
+fprintf('=== SYMBOLIC EQUATIONS FOR POINT P ===\n');
+fprintf('xP  = %s\n', char(xP));
+fprintf('yP  = %s\n', char(yP));
+fprintf('vxP = %s\n', char(vxP));
+fprintf('vyP = %s\n', char(simplify(vyP)));
+fprintf('axP = %s\n', char(axP));
+fprintf('ayP = %s\n\n', char(ayP));
+
+
+L_val = 100;       % mm
+l_val = 50;        % mm
+R_val = 25;        % mm
+omega_val = 10;    % rad/s 
+alpha_val = 0;     % rad/s^2
+
+y_max =  106/2;
+y_min = -106/2;
+x_val = ((L_val^2 - l_val^2)/4) / (2*R_val);
+th_max = 2 * atan(y_max / x_val);
+th_min = 2 * atan(y_min / x_val);
+
+
+syms th_sym
+yP_fn  = matlabFunction(subs(yP,  {L, l, R, theta(t)}, {L_val, l_val, R_val, th_sym}));
+vyP_fn = matlabFunction(subs(vyP, {L, l, R, theta(t), omega}, {L_val, l_val, R_val, th_sym, omega_val}));
+ayP_fn = matlabFunction(subs(ayP, {L, l, R, theta(t), omega, alpha}, {L_val, l_val, R_val, th_sym, omega_val, alpha_val}));
+
+th_vec = linspace(th_min, th_max, 300);
+th_deg = rad2deg(th_vec);
+
+figure('Name', 'Kinematic Analysis of Point P', 'Color', 'w', 'Position', [150, 100, 800, 700]);
+
+subplot(3,1,1);
+plot(th_deg, yP_fn(th_vec), 'b-', 'LineWidth', 2); grid on;
+ylabel('y_P (mm)', 'FontWeight', 'bold');
+title(sprintf('Kinematic Analysis of Point P (\\omega = %.1f rad/s, \\alpha = %.1f rad/s^2)', omega_val, alpha_val));
+
+subplot(3,1,2);
+plot(th_deg, vyP_fn(th_vec), 'g-', 'LineWidth', 2); grid on;
+ylabel('v_{Py} (mm/s)', 'FontWeight', 'bold');
+
+subplot(3,1,3);
+plot(th_deg, ayP_fn(th_vec), 'r-', 'LineWidth', 2); grid on;
+xlabel('Crank Angle \theta (deg)', 'FontWeight', 'bold');
+ylabel('a_{Py} (mm/s^2)', 'FontWeight', 'bold');
