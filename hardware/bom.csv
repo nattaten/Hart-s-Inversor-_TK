@@ -1,2 +1,9 @@
 item,description,manufacturer,part_name,quantity,unit,unit_cost,currency,supplier,url,notes
-1,[PLA],[Korn Srivarakul],[Ground],1,pcs,,,[Supplier],,[Specification or selection note]
+1,[PLA],[Korn Srivarakul],[Crank_Link],1,pcs,,,[Supplier],,[Specification or selection note]
+2,[PLA],[Korn Srivarakul],[Ground],1,pcs,,,[Supplier],,[Specification or selection note]
+3,[PLA],[Korn Srivarakul],[Short_link_A],1,pcs,,,[Supplier],,[Specification or selection note]
+4,[PLA],[Korn Srivarakul],[Short_link_B],1,pcs,,,[Supplier],,[Connected to ground]
+5,[PLA],[Korn Srivarakul],[Joint],1,pcs,,,[Supplier],,[Specification or selection note]
+6,[PLA],[Korn Srivarakul],[Joint_short],1,pcs,,,[Supplier],,[Specification or selection note]
+7,[PLA],[Korn Srivarakul],[Long_Link],2,pcs,,,[Supplier],,[one is green another one is purple]
+
