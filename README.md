@@ -18,22 +18,17 @@
     Responsible for 3D printing and manufacturing the mechanical components using a 3D printer.
 
 - **Status:** Under Development
-- **Last updated:** [2026-11-12]
+- **Last updated:** [2026-11-20]
 
 ## Repository structure
 
 | Path | Purpose |
 |---|---|
-| `hardware/mechanical/` | CAD models, drawings, and fabrication files |
-| `hardware/electronics/` | Schematics, PCB files, and wiring diagrams |
+| `hardware/mechanical/` | CAD models, drawings |
 | `hardware/bom.csv` | Bill of materials with quantities, units, and sourcing details |
-| `software/firmware/` | Microcontroller code and board setup |
-| `software/application/` | PC or Raspberry Pi application code |
-| `machine-skills/` | Machine commands, procedures, and skill instructions |
 | `simulation/` | Models, scripts, assumptions, and simulation results |
-| `docs/` | Assembly, setup, operation, and maintenance instructions |
+| `docs/` | Report |
 | `media/` | Images, GIFs, and links to demonstration videos |
-| `experiments/` | Procedures, raw data, and results |
-| `publications/` | Project-related journal and conference papers |
+
 
 
