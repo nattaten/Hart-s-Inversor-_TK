@@ -1,0 +1,303 @@
+clc; clear; close all;
+% =========================================================================
+%  Hart's Inversor  
+%  Link 2 = Crank (เทา)      O2 -> A
+%  Link 3 = ยาวต่อ Crank (ม่วง)  D -> B
+%  Link 4 = สั้นขวา (ขาว)      C -> B
+%  Link 5 = ยาวอีกอัน (เขียว)   E -> C   
+%  Link 6 = สั้นซ้าย (น้ำตาล)   E -> D   
+% =========================================================================
+
+% --- พารามิเตอร์ ---
+L = 100;                 % บาร์ยาว Link 3, Link 5 (mm)
+l = 50;                  % บาร์สั้น Link 4, Link 6 (mm)
+R = 25;                  % ความยาว Crank O2-A และระยะ O6-O2 (mm)
+y_max =  106/2;          % ปลายชักบน (mm)
+y_min = -106/2;          % ปลายชักล่าง (mm)
+bar_w = 10;              % ความกว้างบาร์ (mm)
+
+K      = (L^2 - l^2) / 4;
+x_line = K / (2*R);
+
+theta_max = 2 * atan(y_max / x_line);
+theta_min = 2 * atan(y_min / x_line);
+
+O6 = [0, 0];             % จุดหมุนคงที่ของ Link 6
+O2 = [R, 0];             % จุดหมุนคงที่ของ Crank
+
+% --- ตรวจสอบกลไก ---
+th_chk  = linspace(theta_min, theta_max, 361);
+all_pts = zeros(0, 2);
+mu_min  = 180;
+x_P     = zeros(size(th_chk));
+for k = 1:numel(th_chk)
+    S = solve_mechanism(th_chk(k), L, l, R);
+    all_pts = [all_pts; S.A; S.B; S.C; S.D; S.E];
+    mu_min  = min(mu_min, min(S.mu, 180 - S.mu));
+    x_P(k)  = S.P(1);
+end
+bb_min = min(all_pts, [], 1) - bar_w/2;
+bb_max = max(all_pts, [], 1) + bar_w/2;
+
+fprintf('---------------- DESIGN CHECK ----------------\n');
+fprintf('L = %.1f, l = %.1f, R = %.1f mm\n', L, l, R);
+fprintf('P line  : x = %.2f mm (straightness error %.2e mm)\n', x_line, max(x_P)-min(x_P));
+fprintf('Crank   : %.1f to %.1f deg (total %.1f deg)\n', rad2deg(theta_min), rad2deg(theta_max), rad2deg(theta_max-theta_min));
+fprintf('Min transmission angle (O6-D-A): %.1f deg\n', mu_min);
+fprintf('----------------------------------------------\n');
+
+% --- ลำดับการหมุน ---
+theta_vec = build_theta(200, theta_max, theta_min);
+
+% --- หน้าต่างแสดงผล ---
+fig = figure('Name', 'Hart''s Inversor Simulation', 'NumberTitle', 'off', ...
+    'Color', 'w', 'Position', [100, 60, 960, 800], 'MenuBar', 'none', 'ToolBar', 'none');
+ax = axes('Parent', fig, 'Color', 'w', 'Position', [0.09, 0.15, 0.86, 0.77], ...
+    'FontSize', 11, 'Box', 'on');
+grid(ax, 'on'); axis(ax, 'equal'); hold(ax, 'on');
+ax.GridAlpha = 0.15;
+xlim(ax, [bb_min(1)-10, bb_max(1)+10]);
+ylim(ax, [bb_min(2)-10, bb_max(2)+10]);
+xlabel(ax, 'X (mm)', 'FontWeight', 'bold');
+ylabel(ax, 'Y (mm)', 'FontWeight', 'bold');
+
+% --- 5. สี  ---
+col.L2 = [0.40 0.40 0.40];   % Crank        เทา
+col.L3 = [0.90 0.62 0.90];   % ยาวต่อ crank  ม่วง
+col.L4 = [0.97 0.97 0.97];   % สั้นขวา       ขาว 
+col.L5 = [0.55 0.85 0.45];   % ยาวอีกอัน     เขียว
+col.L6 = [0.60 0.38 0.18];   % สั้นซ้าย      น้ำตาล
+
+% --- Graphic objects ---
+% ทางเดินของ P
+H.path = plot(ax, NaN, NaN, '--', 'Color', [0.45 0.45 0.45], 'LineWidth', 1.8);
+
+% สัญลักษณ์ฐานยึด O2, O6
+for O = [O2; O6]'
+    plot(ax, O(1), O(2)-3, '^', 'MarkerSize', 17, 'MarkerFaceColor', [0.75 0.75 0.75], ...
+        'MarkerEdgeColor', 'k', 'LineWidth', 1.2);
+end
+
+
+H.L2 = make_link(ax, col.L2);  
+plot(ax, O2(1), O2(2), 'o', 'MarkerSize', 10, 'MarkerFaceColor', 'k', ...
+    'MarkerEdgeColor', 'w', 'LineWidth', 1.5);
+H.L6 = make_link(ax, col.L6);
+H.L5 = make_link(ax, col.L5);
+H.L3 = make_link(ax, col.L3);
+H.L4 = make_link(ax, col.L4);
+
+
+H.jt = plot(ax, NaN(1,5), NaN(1,5), 'o', 'MarkerSize', 10, ...
+    'MarkerFaceColor', 'k', 'MarkerEdgeColor', 'k');
+
+plot(ax, O6(1), O6(2), 'o', 'MarkerSize', 10, ...
+    'MarkerFaceColor', 'k', 'MarkerEdgeColor', 'w', 'LineWidth', 1.5);
+
+H.P = plot(ax, NaN, NaN, 'o', 'MarkerSize', 10, 'MarkerFaceColor', [0.1 0.8 0.2], ...
+    'MarkerEdgeColor', 'k', 'LineWidth', 1.2);
+
+text(ax, O2(1)+2, O2(2)-12, 'O_2', 'FontWeight', 'bold', 'FontSize', 12);
+text(ax, O6(1)-12, O6(2)-12, 'O_6', 'FontWeight', 'bold', 'FontSize', 12);
+
+
+names = {'E','D','C','B','A'};
+for k = 1:5
+    H.txt(k) = text(ax, 0, 0, names{k}, 'FontSize', 12, 'FontWeight', 'bold');
+end
+H.txt_P = text(ax, 0, 0, '', 'Color', [0 0.5 0], 'FontWeight', 'bold', 'FontSize', 11);
+
+H.traj = text(ax, x_line-5, y_max+15, 'Trajectory', 'FontSize', 12, ...
+    'HorizontalAlignment', 'right', 'FontWeight', 'bold', 'Color', [0.45 0.45 0.45], 'Visible', 'off');
+
+% --- ปุ่มควบคุม ---
+setappdata(fig, 'is_running', false);
+setappdata(fig, 'do_reset', false);
+setappdata(fig, 'do_save', false);
+
+btn_play  = uicontrol('Parent', fig, 'Style', 'pushbutton', 'String', '▶ Start', 'FontSize', 11, 'FontWeight', 'bold', 'BackgroundColor', [0.2 0.7 0.3], 'ForegroundColor', 'w', 'Position', [260, 20, 110, 38]);
+btn_reset = uicontrol('Parent', fig, 'Style', 'pushbutton', 'String', '↺ Reset', 'FontSize', 11, 'FontWeight', 'bold', 'BackgroundColor', [0.85 0.85 0.85], 'ForegroundColor', 'k', 'Position', [390, 20, 110, 38]);
+btn_save  = uicontrol('Parent', fig, 'Style', 'pushbutton', 'String', '💾 Save AVI', 'FontSize', 11, 'FontWeight', 'bold', 'BackgroundColor', [0.2 0.5 0.8], 'ForegroundColor', 'w', 'Position', [520, 20, 130, 38]);
+
+set(btn_play,  'Callback', @(src, ~) setappdata(fig, 'is_running', ~getappdata(fig, 'is_running')));
+set(btn_reset, 'Callback', @(src, ~) setappdata(fig, 'do_reset', true));
+set(btn_save,  'Callback', @(src, ~) setappdata(fig, 'do_save', true));
+
+% --- Animation Loop ---
+i = 1;
+Px_hist = [];
+Py_hist = [];
+
+S = solve_mechanism(theta_vec(1), L, l, R);
+update_graphics(S, theta_vec(1), H, Px_hist, Py_hist, ax);
+
+while ishandle(fig)
+    % Reset
+    if getappdata(fig, 'do_reset')
+        setappdata(fig, 'do_reset', false);
+        setappdata(fig, 'is_running', false);
+        i = 1; Px_hist = []; Py_hist = [];
+        S = solve_mechanism(theta_vec(1), L, l, R);
+        update_graphics(S, theta_vec(1), H, Px_hist, Py_hist, ax);
+        set(H.traj, 'Visible', 'off');
+        set(btn_play, 'String', '▶ Start', 'BackgroundColor', [0.2 0.7 0.3]);
+        drawnow;
+        continue;
+    end
+
+    % Save AVI (ละเอียดสูง 30 fps, ไม่มีปุ่มในวิดีโอ)
+    if getappdata(fig, 'do_save')
+        setappdata(fig, 'do_save', false);
+        set(btn_save, 'String', '⏳ Saving...', 'Enable', 'off');
+        drawnow;
+
+        theta_vid = build_theta(300, theta_max, theta_min);   % ละเอียดกว่าตอนเล่น
+        n_hold    = 45;                                       % ค้างเฟรมสุดท้าย 1.5 วินาที
+
+        v = VideoWriter('Hart_Inversor_Simulation.avi', 'Motion JPEG AVI');
+        v.FrameRate = 30;
+        v.Quality   = 100;
+        open(v);
+
+        ui = [btn_play, btn_reset, btn_save];
+        set(ui, 'Visible', 'off');          % ซ่อนปุ่มไม่ให้ติดในวิดีโอ
+        set(H.traj, 'Visible', 'off');
+        Px_v = []; Py_v = [];
+
+        for k = 1:length(theta_vid)
+            S_v = solve_mechanism(theta_vid(k), L, l, R);
+            Px_v(end+1) = S_v.P(1);  %#ok<SAGROW>
+            Py_v(end+1) = S_v.P(2);  %#ok<SAGROW>
+            update_graphics(S_v, theta_vid(k), H, Px_v, Py_v, ax);
+            drawnow;
+            writeVideo(v, getframe(fig));
+        end
+
+        set(H.traj, 'Visible', 'on');
+        drawnow;
+        fr = getframe(fig);
+        for k = 1:n_hold
+            writeVideo(v, fr);
+        end
+        close(v);
+
+        set(ui, 'Visible', 'on');
+        set(btn_save, 'String', '✅ Saved!', 'BackgroundColor', [0.1 0.6 0.2], 'Enable', 'on');
+        pause(1.5);
+        set(btn_save, 'String', '💾 Save AVI', 'BackgroundColor', [0.2 0.5 0.8]);
+
+        % คืนสถานะหน้าจอ
+        i = 1; Px_hist = []; Py_hist = [];
+        S = solve_mechanism(theta_vec(1), L, l, R);
+        update_graphics(S, theta_vec(1), H, Px_hist, Py_hist, ax);
+        set(H.traj, 'Visible', 'off');
+    end
+
+    % Play / Pause
+    running = getappdata(fig, 'is_running');
+    if running
+        if ~strcmp(get(btn_play, 'String'), '⏸ Pause')
+            set(btn_play, 'String', '⏸ Pause', 'BackgroundColor', [0.9 0.5 0.1]);
+        end
+
+        if i == 1
+            Px_hist = []; Py_hist = [];
+            set(H.traj, 'Visible', 'off');
+        end
+        theta = theta_vec(i);
+        S = solve_mechanism(theta, L, l, R);
+        Px_hist(end+1) = S.P(1);
+        Py_hist(end+1) = S.P(2);
+        update_graphics(S, theta, H, Px_hist, Py_hist, ax);
+        drawnow;
+
+        i = i + 1;
+        if i > length(theta_vec)
+            i = 1;
+            set(H.traj, 'Visible', 'on');
+            setappdata(fig, 'is_running', false);
+            if ishandle(btn_play)
+                set(btn_play, 'String', '▶ Start', 'BackgroundColor', [0.2 0.7 0.3]);
+            end
+        end
+        pause(0.015);
+    else
+        if i > 1 && ~strcmp(get(btn_play, 'String'), '▶ Resume')
+            set(btn_play, 'String', '▶ Resume', 'BackgroundColor', [0.2 0.7 0.3]);
+        end
+        pause(0.05);
+    end
+end
+
+function th = build_theta(n, theta_max, theta_min)
+    th = linspace(theta_min, theta_max, n);
+end
+
+function h = make_link(ax, c)
+    h.out = plot(ax, NaN, NaN, '-', 'Color', 'k', 'LineWidth', 10);
+    h.in  = plot(ax, NaN, NaN, '-', 'Color', c,   'LineWidth', 7);
+end
+
+function set_link(h, p, q)
+    set(h.out, 'XData', [p(1) q(1)], 'YData', [p(2) q(2)]);
+    set(h.in,  'XData', [p(1) q(1)], 'YData', [p(2) q(2)]);
+end
+
+function update_graphics(S, theta, H, Px_hist, Py_hist, ax)
+    set(H.path, 'XData', Px_hist, 'YData', Py_hist);
+    set_link(H.L2, S.O2, S.A);  
+    set_link(H.L3, S.D,  S.B);  
+    set_link(H.L4, S.C,  S.B);  
+    set_link(H.L5, S.E,  S.C);   
+    set_link(H.L6, S.E,  S.D);  
+
+    pts = [S.E; S.D; S.C; S.B; S.A];
+    set(H.jt, 'XData', pts(:,1)', 'YData', pts(:,2)');
+    for k = 1:5
+        set(H.txt(k), 'Position', [pts(k,1)+3, pts(k,2)+4, 0]);
+    end
+
+    set(H.P, 'XData', S.P(1), 'YData', S.P(2));
+ 
+    if S.P(2) > 0
+        set(H.txt_P, 'HorizontalAlignment', 'right', 'Position', [S.P(1)-4, S.P(2)+5, 0]);
+    else
+        set(H.txt_P, 'HorizontalAlignment', 'left',  'Position', [S.P(1)+4, S.P(2)+4, 0]);
+    end
+    set(H.txt_P, 'String', sprintf('P(%.1f, %.1f)', S.P(1), S.P(2)));
+
+    title(ax, sprintf("Hart's Inversor   (\\theta = %.1f^\\circ)", rad2deg(theta)), ...
+        'FontSize', 14, 'FontWeight', 'bold');
+end
+
+function S = solve_mechanism(theta, L, l, R)
+    O6 = [0, 0];
+    O2 = [R, 0];
+    A = [R + R*cos(theta), R*sin(theta)];
+    d_OA = norm(A);
+    r1 = l/2; r2 = L/2;
+    a  = (r1^2 - r2^2 + d_OA^2) / (2*d_OA);
+    h2 = r1^2 - a^2;
+    if h2 < 0
+        error('Mechanism cannot reach theta = %.1f deg', rad2deg(theta));
+    end
+    h = sqrt(h2);
+    u_perp = [-A(2), A(1)] / d_OA;
+    D = O6 + a*(A/d_OA) + h*u_perp;
+
+    E = -D;            
+    B = 2*A - D;        
+    d_EB = norm(B - E);
+    a_C  = (L^2 - l^2 + d_EB^2) / (2*d_EB);
+    hC2  = L^2 - a_C^2;
+    if hC2 < 0
+        error('Mechanism cannot reach theta = %.1f deg', rad2deg(theta));
+    end
+    u_EB = (B - E) / d_EB;
+    C = E + a_C*u_EB + sqrt(hC2) * [-u_EB(2), u_EB(1)];
+    P = (E + C) / 2;     
+    v1 = O6 - D; v2 = A - D;
+    mu = acosd(max(-1, min(1, dot(v1, v2) / (norm(v1)*norm(v2)))));
+
+    S = struct('O6',O6,'O2',O2,'A',A,'B',B,'C',C,'D',D,'E',E,'P',P,'mu',mu);
+end
